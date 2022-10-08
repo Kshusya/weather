@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Weather</title>
+</head>
+<body>
+    <svg version="1.1" id="L9" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve" width="60px">
+        <path fill="#000" d="M73,50c0-12.7-10.3-23-23-23S27,37.3,27,50 M30.9,50c0-10.5,8.5-19.1,19.1-19.1S69.1,39.5,69.1,50">
+        <animateTransform 
+            attributeName="transform" 
+            attributeType="XML" 
+            type="rotate"
+            dur="1s" 
+            from="0 50 50"
+            to="360 50 50" 
+            repeatCount="indefinite" />
+        </path>
+    </svg>
+    <div id="city"></div>
+    <div id="temp"></div>
+
+
+    <script src="https://unpkg.com/axios@0.27.2/dist/axios.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        function getCityInformation(latitude, longitude) {
+            axios.get(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}`)
+              .then(function (response) {
+                // handle success
+                console.log(response);
+                const data = response.data;
+
+                const cityToDisplay = `${data.city}, ${data.countryName}`;
+
+                const cityElement = document.getElementById('city');
+                cityElement.innerText = cityToDisplay;
+                document.querySelector('svg').style.display = 'none';
+              })
+              .catch(function (error) {
+                // handle error
+                console.log(error);
+              });
+        }
+
+        function getWeatherInformation (latitude, longitude) {
+            axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,weathercode`)
+            .then(function (response) {
+                console.log(response);
+                const weather_data = response.data.hourly;
+                console.log(weather_data.temperature_2m);
+                console.log(weather_data.time);
+
+                let currentTime = new Date().toISOString();
+                currentTime = currentTime.substr(0, currentTime.length - 10) + '00';
+                const indexOfCurrentTime = weather_data.time.indexOf(currentTime);
+                console.log(indexOfCurrentTime);
+
+                const currentWeather = weather_data.temperature_2m[indexOfCurrentTime];
+                console.log(currentWeather);
+
+                let tempElement = document.getElementById('temp');
+                tempElement.innerText = `${currentWeather} C`;
+
+                const currentWeatherCode = weather_data.weathercode[indexOfCurrentTime];
+                console.log(currentWeatherCode);
+            })
+        }
+
+
+        function successFunction(geo) {
+            console.log(geo);
+
+            getCityInformation(geo.coords.latitude, geo.coords.longitude);
+            getWeatherInformation(geo.coords.latitude, geo.coords.longitude);
+        }
+
+        function errorFunction(err) {
+            console.log(err);
+        }
+
+        const debugMode = true;
+
+        if (debugMode) {
+            successFunction({coords: {latitude: 41.6, longitude: 41.6}});
+        } else {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(successFunction, errorFunction);
+            } else {
+                alert('It seems like Geolocation, which is required for this page, is not enabled in your browser. Please use a browser which supports it.');
+            }
+        }
+    </script>
+</body>
+</html>
