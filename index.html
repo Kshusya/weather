@@ -21,6 +21,7 @@
     </svg>
     <div id="city"></div>
     <div id="temp"></div>
+    <img id="weathercode" src="" width="200px">
 
 
     <script src="https://unpkg.com/axios@0.27.2/dist/axios.min.js" type="text/javascript"></script>
@@ -44,6 +45,79 @@
               });
         }
 
+        function updateWeatherCode (weathercode) {
+            const weatherImageElement = document.getElementById('weathercode');
+            const imageFolder = "./animated-icons/"
+
+            // weathercode = 85;
+
+            switch(weathercode) {
+                case 0: 
+                    const currentHours = new Date().getHours();
+                    if (currentHours >= 7 && currentHours <= 19) {
+                        weatherImageElement.src = imageFolder + "day.svg";
+                    } else {
+                        weatherImageElement.src = imageFolder + "night.svg";
+                    }
+                    break;
+
+                case 1:
+                case 2:
+                case 3:
+                    weatherImageElement.src = imageFolder + "cloudy.svg"; 
+                    break;
+
+                case 34:
+                case 48:
+                    weatherImageElement.src = imageFolder + "fog.svg";
+                    break;
+
+                case 51:
+                case 53:
+                case 55:
+                    weatherImageElement.src = imageFolder + "rainy-4.svg";
+                    break;
+
+                case 56:
+                case 57:
+                case 66:
+                case 67:
+                    weatherImageElement.src = imageFolder + "sleet.svg";
+                    break;
+
+                case 61:
+                case 63:
+                case 65:
+                    weatherImageElement.src = imageFolder + "rainy-5.svg";
+                    break;
+                
+                case 77:
+                    weatherImageElement.src = imageFolder + "rainy-7.svg";
+                    break;
+
+                case 80:
+                case 81:
+                case 82:
+                    weatherImageElement.src = imageFolder + "rainy-6.svg";
+                    break;
+                
+                case 85:
+                case 86:
+                    weatherImageElement.src = imageFolder + "snowy-5.svg";
+                    break;
+
+                case 95:
+                case 96:
+                case 99:
+                    weatherImageElement.src = imageFolder + "thunder.svg";
+                    break;
+
+                default:
+                    weatherImageElement.src = ""; 
+                    break;
+            }
+        }
+
         function getWeatherInformation (latitude, longitude) {
             axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,weathercode`)
             .then(function (response) {
@@ -65,6 +139,8 @@
 
                 const currentWeatherCode = weather_data.weathercode[indexOfCurrentTime];
                 console.log(currentWeatherCode);
+
+                updateWeatherCode(currentWeatherCode);
             })
         }
 
