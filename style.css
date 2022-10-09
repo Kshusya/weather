@@ -1,0 +1,60 @@
+html {
+    font-family: 'Open Sans', sans-serif;
+    min-height: 100%;
+}
+
+body {
+    padding: 20px 0;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.mb-30 {
+    margin-bottom: 30px;
+}
+
+body.day {
+    background: rgb(54,116,207);
+    background: linear-gradient(32deg, rgba(54,116,207,1) 0%, rgba(162,223,251,1) 100%);
+    color: #fff;
+    text-shadow: 1px 1px 20px #044A69;
+}
+
+body.night {
+    background: rgb(2,19,75);
+    background: linear-gradient(35deg, rgba(2,19,75,1) 0%, rgba(61,88,177,1) 100%);
+    color: #fff;
+}
+
+body.day #future-temp {
+    background-color: #0f61a885;
+}
+
+body.night #future-temp {
+    background-color: #3d539e85;
+}
+
+#future-temp {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 60px;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+#weathercode {
+    margin: -20px;
+}
+
+.min-max-block {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
