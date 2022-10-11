@@ -11,8 +11,8 @@
         <title>Weather</title>
     </head>
     <body>
-        <div class="flex text-center">
-            <svg version="1.1" id="L9" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve" width="60px">
+        <div class="flex-column-center text-center">
+            <svg class="loading" version="1.1" id="L9" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve" width="60px">
                 <path fill="#000" d="M73,50c0-12.7-10.3-23-23-23S27,37.3,27,50 M30.9,50c0-10.5,8.5-19.1,19.1-19.1S69.1,39.5,69.1,50">
                 <animateTransform 
                     attributeName="transform" 
@@ -27,40 +27,51 @@
             <h2 id="city"></h2>
             <img id="weathercode" src="" width="200px">
             <h1 id="temp"></h1>
+            <div id="apparent_temp"></div>
             <div class="min-max-block mb-30">
                 <div id="min-temp"></div>
                 <div id="max-temp"></div>
             </div>
             <div id="future-temp" class="mb-30">
-                <div class="flex">
+                <div class="flex-column-center">
                     <div class="hourly-temp"></div>
                     <img src="" width="60px" class="hourly-weathercode">
                     <div class="hours"></div>
                 </div>
-                <div class="flex">
+                <div class="flex-column-center">
                     <div class="hourly-temp"></div>
                     <img src="" width="60px" class="hourly-weathercode">
                     <div class="hours"></div>
                 </div>
-                <div class="flex">
+                <div class="flex-column-center">
                     <div class="hourly-temp"></div>
                     <img src="" width="60px" class="hourly-weathercode">
                     <div class="hours"></div>
                 </div>
-                <div class="flex">
+                <div class="flex-column-center">
                     <div class="hourly-temp"></div>
                     <img src="" width="60px" class="hourly-weathercode">
                     <div class="hours"></div>
                 </div>
-                <div class="flex">
+                <div class="flex-column-center">
                     <div class="hourly-temp"></div>
                     <img src="" width="60px" class="hourly-weathercode">
                     <div class="hours"></div>
                 </div>
             </div>
-            <div class="sunrise-sinset-block mb-30">
-                <div id="sunrise"></div>
-                <div id="sunset"></div>
+            <div class="other">
+                <div class="sunrise-sinset-block">
+                    <div id="sunrise"></div>
+                    <div id="sunset"></div>
+                </div>
+                <div class="wind">
+                    <img src="./static-icons/wind.svg" alt="" width="40px">
+                    <div id="windspeed"></div>
+                </div>
+                <div class="humidity">
+                    <img src="./static-icons/raindrop.svg" alt="" width="40px">
+                    <div id="humidity"></div>
+                </div>
             </div>
         </div>
 
@@ -78,7 +89,6 @@
 
                     const cityElement = document.getElementById('city');
                     cityElement.innerText = cityToDisplay;
-                    document.querySelector('svg').style.display = 'none';
                 })
                 .catch(function (error) {
                     // handle error
@@ -151,7 +161,7 @@
                 const imageFolder = "./animated-icons/";
 
                 const currentHours = new Date().getHours();
-                const isDayTime = currentHours >= 7 && currentHours <= 19;
+                const isDayTime = currentHours >= 7 && currentHours <= 18;
 
                 // styling depending on time of day
                 document.body.classList.add(isDayTime ? "day" : "night");
@@ -162,7 +172,7 @@
 
             function getWeatherInformation (latitude, longitude) {
                 const timezone = new window.Intl.DateTimeFormat().resolvedOptions().timeZone;
-                axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,weathercode&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=${timezone}`)
+                axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,apparent_temperature,weathercode,windspeed_10m,relativehumidity_2m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=${timezone}`)
                 .then(function (response) {
                     console.log(response);
                     const hourlyData = response.data.hourly;
@@ -181,6 +191,21 @@
                     console.log(currentWeatherCode);
 
                     updateWeatherCode(currentWeatherCode);
+
+                    // current apparent temperature
+                    const apparentTemp = hourlyData.apparent_temperature[indexOfCurrentTime];
+                    const apparentElement = document.getElementById('apparent_temp');
+                    apparentElement.innerText = `Feels like ${apparentTemp} °C`
+
+                    // current wind speed
+                    const currentWindSpeed = hourlyData.windspeed_10m[indexOfCurrentTime];
+                    const windElement = document.getElementById('windspeed');
+                    windElement.innerText = `${currentWindSpeed} km/h`;
+
+                    // current humidity
+                    const currentHumidity = hourlyData.relativehumidity_2m[indexOfCurrentTime];
+                    const humidityElement = document.getElementById('humidity');
+                    humidityElement.innerText = `${currentHumidity}%`
 
                     // min and max temperature for the day
                     const dailyData = response.data.daily;
