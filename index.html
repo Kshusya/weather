@@ -78,36 +78,17 @@
         <script src="https://unpkg.com/axios@0.27.2/dist/axios.min.js" type="text/javascript"></script>
 
         <script type="text/javascript">
-            function getCityInformation(latitude, longitude) {
-                axios.get(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}`)
-                .then(function (response) {
-                    // handle success
-                    console.log(response);
-                    const data = response.data;
-
-                    const cityToDisplay = `${data.city}, ${data.countryName}`;
-
-                    const cityElement = document.getElementById('city');
-                    cityElement.innerText = cityToDisplay;
-                })
-                .catch(function (error) {
-                    // handle error
-                    console.log(error);
-                });
+            function isDayTime(hours) {
+                return hours >= 7 && hours <= 18;
             }
 
-            function getImageByWeathercode(currentHours, weathercode) {
-                const isDayTime = currentHours >= 7 && currentHours <= 19;
-
-                // weathercode = 56;
+            function getImageByWeathercode(hours, weathercode) {
+                // weathercode = 999;
 
                 switch (weathercode) {
+                    default:
                     case 0: 
-                        if (isDayTime) {
-                            return "day";
-                        } else {
-                            return "night";
-                        }
+                        return isDayTime(hours) ? "day" : "night";
 
                     case 1:
                     case 2:
@@ -150,45 +131,53 @@
                     case 96:
                     case 99:
                         return "thunder";
-
-                    default:
-                        return ""; 
                 }
             }
 
-            function updateWeatherCode (weathercode) {
+            function updateWeatherCode(weathercode) {
                 const weatherImageElement = document.getElementById('weathercode');
                 const imageFolder = "./animated-icons/";
 
                 const currentHours = new Date().getHours();
-                const isDayTime = currentHours >= 7 && currentHours <= 18;
 
                 // styling depending on time of day
-                document.body.classList.add(isDayTime ? "day" : "night");
+                document.body.classList.add(isDayTime(currentHours) ? "day" : "night");
 
                 const weatherImage = getImageByWeathercode(currentHours, weathercode);
                 weatherImageElement.src = imageFolder + weatherImage + '.svg';
             }
 
-            function getWeatherInformation (latitude, longitude) {
+            function getCityInformation(latitude, longitude) {
+                axios.get(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}`)
+                .then(function (response) {
+                    // handle success
+                    const data = response.data;
+
+                    const cityElement = document.getElementById('city');
+                    cityElement.innerText = `${data.city}, ${data.countryName}`;
+                })
+                .catch(function (error) {
+                    // handle error
+                    alert('Failed to fetch city information');
+                });
+            }
+
+            function getWeatherInformation(latitude, longitude) {
                 const timezone = new window.Intl.DateTimeFormat().resolvedOptions().timeZone;
+
                 axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,apparent_temperature,weathercode,windspeed_10m,relativehumidity_2m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=${timezone}`)
                 .then(function (response) {
                     console.log(response);
                     const hourlyData = response.data.hourly;
-                    console.log(hourlyData.temperature_2m);
-                    console.log(hourlyData.time);
                     
                     const indexOfCurrentTime = new Date().getHours();
 
                     const currentWeather = hourlyData.temperature_2m[indexOfCurrentTime];
-                    console.log(currentWeather);
 
                     const tempElement = document.getElementById('temp');
                     tempElement.innerText = `${currentWeather}°C`;
 
                     const currentWeatherCode = hourlyData.weathercode[indexOfCurrentTime];
-                    console.log(currentWeatherCode);
 
                     updateWeatherCode(currentWeatherCode);
 
@@ -223,19 +212,10 @@
                     sunsetElement.innerText = `Sunset: ${sunset}`;
 
                     // calculation of time and weather for the next 5 hours
-                    const futureWeatherForFiveHours = hourlyData.temperature_2m.slice([indexOfCurrentTime + 1], [indexOfCurrentTime + 6]);
-                    console.log(futureWeatherForFiveHours);
-
-                    const futureFiveHours = hourlyData.time.slice([indexOfCurrentTime + 1], [indexOfCurrentTime + 6]);
-                    console.log(futureFiveHours);
-
-                    const futureWeathercode = hourlyData.weathercode.slice([indexOfCurrentTime + 1], [indexOfCurrentTime + 6]);
-                    console.log(futureWeathercode);
-
                     for (let i = 0; i < 5; i++) {
-                        const hoursTemp = futureWeatherForFiveHours[i];
-                        const hours = futureFiveHours[i];
-                        const weathercode = futureWeathercode[i];
+                        const hoursTemp = hourlyData.temperature_2m[indexOfCurrentTime + 1 + i];
+                        const hours = hourlyData.time[indexOfCurrentTime + 1 + i];
+                        const weathercode = hourlyData.weathercode[indexOfCurrentTime + 1 + i];
 
                         const element = document.getElementById("future-temp").children[i];
                         
@@ -248,13 +228,15 @@
 
                         const weathercodeElement = element.querySelector(".hourly-weathercode");
                         const imageFolder = "./static-icons/";
-                        const weatherImage = getImageByWeathercode(hours, weathercode);
+                        const weatherImage = getImageByWeathercode(localHours, weathercode);
                         weathercodeElement.src = imageFolder + weatherImage + '.svg';
                     }
-
                 })
+                .catch(function (error) {
+                    // handle error
+                    alert('Failed to fetch weather information');
+                });
             }
-
 
             function successFunction(geo) {
                 console.log(geo);
