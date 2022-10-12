@@ -35,27 +35,27 @@
             <div id="future-temp" class="mb-30">
                 <div class="flex-column-center">
                     <div class="hourly-temp"></div>
-                    <img src="" width="60px" class="hourly-weathercode">
+                    <img src="" width="100%" class="hourly-weathercode">
                     <div class="hours"></div>
                 </div>
                 <div class="flex-column-center">
                     <div class="hourly-temp"></div>
-                    <img src="" width="60px" class="hourly-weathercode">
+                    <img src="" width="100%" class="hourly-weathercode">
                     <div class="hours"></div>
                 </div>
                 <div class="flex-column-center">
                     <div class="hourly-temp"></div>
-                    <img src="" width="60px" class="hourly-weathercode">
+                    <img src="" width="100%" class="hourly-weathercode">
                     <div class="hours"></div>
                 </div>
                 <div class="flex-column-center">
                     <div class="hourly-temp"></div>
-                    <img src="" width="60px" class="hourly-weathercode">
+                    <img src="" width="100%" class="hourly-weathercode">
                     <div class="hours"></div>
                 </div>
                 <div class="flex-column-center">
                     <div class="hourly-temp"></div>
-                    <img src="" width="60px" class="hourly-weathercode">
+                    <img src="" width="100%" class="hourly-weathercode">
                     <div class="hours"></div>
                 </div>
             </div>
@@ -207,9 +207,9 @@
                     const sunrise = dailyData.sunrise[0].substring(11);
                     const sunset = dailyData.sunset[0].substring(11);
                     const sunriseElement = document.getElementById('sunrise');
-                    sunriseElement.innerText = `Sunrise: ${sunrise}`;
+                    sunriseElement.innerText = `Sunrise ${sunrise}`;
                     const sunsetElement = document.getElementById('sunset');
-                    sunsetElement.innerText = `Sunset: ${sunset}`;
+                    sunsetElement.innerText = `Sunset ${sunset}`;
 
                     // calculation of time and weather for the next 5 hours
                     for (let i = 0; i < 5; i++) {
@@ -249,7 +249,7 @@
                 console.log(err);
             }
 
-            const debugMode = true;
+            const debugMode = false;
 
             if (debugMode) {
                 successFunction({coords: {latitude: 41.6, longitude: 41.6}});
